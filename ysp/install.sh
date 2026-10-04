@@ -294,6 +294,12 @@ detect_arch
 extract_universal_package
 verify_package
 
+# 部分打包环境（例如 Windows 上的 tar）不会保留 POSIX 执行位，这里补齐；
+# 否则内置 helper 会被误判为不可用，回退脚本还会报 Permission denied。
+for _f in "$SCRIPT_DIR/cmg-native" "$SCRIPT_DIR/build-fallback-native.sh" "$SCRIPT_DIR/build-fallback-openh264.sh"; do
+    [ -f "$_f" ] && chmod 0755 "$_f" 2>/dev/null || true
+done
+
 [ "$(id -u)" -eq 0 ] || fail "请使用 root 权限运行此安装脚本（例如：sudo ./install.sh）"
 need_command systemctl
 need_command tar
