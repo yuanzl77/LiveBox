@@ -345,7 +345,9 @@ YSP_MEMORY_MAX=$(prompt_text 'systemd MemoryMax' "$YSP_MEMORY_MAX")
 rm -f /tmp/ysp-answer.$$
 
 case "$YSP_MEMORY_MAX" in
-    *[!0-9MGmgKk]*) fail "MemoryMax 格式无效：$YSP_MEMORY_MAX" ;;
+    *[!0-9BbIiKkMmGgTtPp]*) fail "MemoryMax 格式无效：$YSP_MEMORY_MAX（例如 512M、512MiB、1G、200MB）" ;;
+    *[!0-9]*) ;;
+    *) fail "MemoryMax 必须带单位：$YSP_MEMORY_MAX 不带单位时 systemd 会当成字节数（200 = 200 字节），进程会立刻被 OOM 杀掉。请输入 200M、512M 或 1G。" ;;
 esac
 
 work=$(mktemp -d)
