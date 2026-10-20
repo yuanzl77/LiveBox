@@ -1,27 +1,49 @@
-ysp-proxy ARM Linux 安装说明
-============================
+# LiveBox YSP
 
-支持的系统：
-- 使用 systemd 的 Linux
-- armv7l（ARMv7 硬浮点）或 aarch64 / arm64
-- Debian、Ubuntu、Armbian 等基于 apt 的发行版
+此目录只发布 Linux 构建包，不包含项目源码。
 
-安装步骤：
-1. 解压 ysp-proxy-<版本>-linux-universal.tar.gz。
-2. 执行：sudo ./install.sh
-3. 按提示依次设置端口、公网访问地址、解码并发数、分片预取、异常日志、EPG 缓存路径和内存上限。
+LiveBox YSP 把央视频直播转换成标准 HLS，可供电视、手机、网页和 IPTV 播放器使用。
 
-安装程序会写入：
-- /opt/ysp-proxy                          程序与运行数据
-- /etc/ysp-proxy.conf                     运行参数
-- /etc/systemd/system/ysp-proxy.service   systemd 服务单元
+## 项目优势
 
-依赖下载：
-预编译的 cmg-native 与 libopenh264 直接随包提供，正常情况下不会联网。
-只有预编译产物在目标机无法运行、需要回退到源码编译时，才会按需下载 OpenH264
-2.6.0 源码包（默认优先走 github.776512.xyz 镜像，下完做 SHA256 校验）。
-如需指定自己的镜像，可先设置 YSP_OPENH264_URL，再执行安装。
+- **播放器兼容**：输出标准 HLS，可接入 FongMi、TiviMate、VLC、ExoPlayer/Media3 等播放器。
+- **线路容灾**：App 线路为主、Web 线路兜底，并根据上游健康状态执行重试、冷却和降级。
+- **连续播放**：统一处理清单窗口、媒体序列和线路切换，减少换台、CDN 切换时的卡顿与重复播放。
+- **低资源占用**：Go 主程序单进程运行，适合 ARM Linux 设备长期运行。
+- **可观测**：提供中文运行日志和播放指标，可查看首帧耗时、分片结果、线路切换及各阶段耗时。
 
-升级说明：
-解压新版本包后再次执行同一条命令即可。安装程序会读取旧配置作为默认值，
-未修改的项继续沿用；覆盖前会备份旧文件，启动失败时自动回滚到升级前的版本。
+## Linux 构建包
+
+| 文件 | 适用架构 |
+| --- | --- |
+| `ysp-proxy-20261021-linux-armv7.tar.gz` | ARMv7 硬浮点设备 |
+| `ysp-proxy-20261021-linux-arm64.tar.gz` | ARM64 / AArch64 设备 |
+| `ysp-proxy-20261021-linux-universal.tar.gz` | 包含以上两种架构，安装时自动选择 |
+
+下载后请用 `SHA256SUMS.txt` 校验文件完整性。
+
+## 安装
+
+解压通用包并运行安装脚本：
+
+```bash
+tar -xzf ysp-proxy-20261021-linux-universal.tar.gz
+cd ysp-proxy-20261021-linux-universal
+sudo ./install.sh
+```
+
+服务支持 systemd，安装程序会配置开机启动和运行参数。
+
+## 部署交给 AI
+
+不需要自行研究安装步骤。把设备信息、网络环境和本目录地址交给 AI，让它完成架构判断、安装、配置和启动验证：
+
+```text
+请阅读 https://github.com/yuanzl77/LiveBox/tree/main/ysp，
+根据我的设备 <型号、系统、架构、内存> 和局域网环境完成部署，
+配置可通过电视访问的订阅地址，并验证首页、频道清单、分片和节目单。
+```
+
+## 安全说明
+
+服务默认没有鉴权，请只在可信局域网内使用，不要直接暴露到公网。
